@@ -1,0 +1,12 @@
+# IDE and build artefacts
+.idea/
+*.iml
+target/
+
+# Local configuration contains credentials and must remain private
+.env
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,261 @@
+@baseUrl = http://localhost:8080/api
+
+### Проверка готовности API: чтение демонстрационных данных
+GET {{baseUrl}}/users
+
+### CRUD пользователей: создать автора
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Автор из HTTP-коллекции",
+  "role": "AUTHOR"
+}
+> {% client.global.set("authorId", response.body.id); %}
+
+### CRUD пользователей: получить одного
+GET {{baseUrl}}/users/{{authorId}}
+
+### CRUD пользователей: полная замена
+PUT {{baseUrl}}/users/{{authorId}}
+Content-Type: application/json
+
+{
+  "name": "Автор из HTTP-коллекции",
+  "role": "AUTHOR"
+}
+
+### CRUD пользователей: частичное изменение
+PATCH {{baseUrl}}/users/{{authorId}}
+Content-Type: application/json
+
+{
+  "name": "Автор HTTP-сценария"
+}
+
+### CRUD пользователей: создать и удалить несвязанного пользователя
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Удаляемый редактор",
+  "role": "EDITOR"
+}
+> {% client.global.set("deletableUserId", response.body.id); %}
+
+###
+DELETE {{baseUrl}}/users/{{deletableUserId}}
+
+### CRUD рубрик: создать
+POST {{baseUrl}}/sections
+Content-Type: application/json
+
+{
+  "name": "Лабораторные технологии",
+  "availableForPublication": true
+}
+> {% client.global.set("sectionId", response.body.id); %}
+
+### CRUD рубрик: список и запись
+GET {{baseUrl}}/sections
+
+###
+GET {{baseUrl}}/sections/{{sectionId}}
+
+### CRUD рубрик: полная замена
+PUT {{baseUrl}}/sections/{{sectionId}}
+Content-Type: application/json
+
+{
+  "name": "Лабораторные технологии",
+  "availableForPublication": true
+}
+
+### CRUD рубрик: PATCH
+PATCH {{baseUrl}}/sections/{{sectionId}}
+Content-Type: application/json
+
+{
+  "availableForPublication": true
+}
+
+### CRUD рубрик: отдельная рубрика для удаления
+POST {{baseUrl}}/sections
+Content-Type: application/json
+
+{
+  "name": "Удаляемая рубрика",
+  "availableForPublication": false
+}
+> {% client.global.set("deletableSectionId", response.body.id); %}
+
+###
+DELETE {{baseUrl}}/sections/{{deletableSectionId}}
+
+### CRUD статей: создать временную статью
+POST {{baseUrl}}/articles
+Content-Type: application/json
+
+{
+  "sectionId": {{sectionId}},
+  "authorId": {{authorId}},
+  "title": "Статья для CRUD-проверки",
+  "text": "Первоначальный текст временной статьи."
+}
+> {% client.global.set("crudArticleId", response.body.id); %}
+
+### CRUD статей: список и одна статья
+GET {{baseUrl}}/articles
+
+###
+GET {{baseUrl}}/articles/{{crudArticleId}}
+
+### CRUD статей: PUT
+PUT {{baseUrl}}/articles/{{crudArticleId}}
+Content-Type: application/json
+
+{
+  "sectionId": {{sectionId}},
+  "authorId": {{authorId}},
+  "title": "Статья для CRUD-проверки",
+  "text": "Обновлённый полный текст временной статьи."
+}
+
+### CRUD статей: PATCH
+PATCH {{baseUrl}}/articles/{{crudArticleId}}
+Content-Type: application/json
+
+{
+  "title": "Статья для CRUD-проверки, версия 2"
+}
+
+### CRUD статей: DELETE
+DELETE {{baseUrl}}/articles/{{crudArticleId}}
+
+### Сценарий: создать статью для редакционного цикла
+POST {{baseUrl}}/articles
+Content-Type: application/json
+
+{
+  "sectionId": {{sectionId}},
+  "authorId": {{authorId}},
+  "title": "Статья для публикации",
+  "text": "Полный текст статьи, проходящей редакционный цикл."
+}
+> {% client.global.set("articleId", response.body.id); %}
+
+### Бизнес-операция 1: отправить черновик на проверку
+POST {{baseUrl}}/business/articles/{{articleId}}/submit
+
+### Бизнес-операция 2: одобрить статью; создаются review и новое состояние article
+POST {{baseUrl}}/business/articles/{{articleId}}/review
+Content-Type: application/json
+
+{
+  "decision": "APPROVED",
+  "notes": "Материал соответствует редакционной политике."
+}
+> {% client.global.set("businessReviewId", response.body.id); %}
+
+### CRUD рецензий: список, одна рецензия и PATCH созданной бизнес-операцией записи
+GET {{baseUrl}}/reviews
+
+###
+GET {{baseUrl}}/reviews/{{businessReviewId}}
+
+###
+PATCH {{baseUrl}}/reviews/{{businessReviewId}}
+Content-Type: application/json
+
+{
+  "notes": "Уточнённый комментарий редактора."
+}
+
+### CRUD рецензий: создать отдельную запись для PUT и DELETE
+POST {{baseUrl}}/reviews
+Content-Type: application/json
+
+{
+  "articleId": {{articleId}},
+  "decision": "APPROVED",
+  "notes": "Техническая проверка CRUD API."
+}
+> {% client.global.set("crudReviewId", response.body.id); %}
+
+###
+PUT {{baseUrl}}/reviews/{{crudReviewId}}
+Content-Type: application/json
+
+{
+  "articleId": {{articleId}},
+  "decision": "APPROVED",
+  "notes": "Обновлённая техническая проверка CRUD API."
+}
+
+###
+DELETE {{baseUrl}}/reviews/{{crudReviewId}}
+
+### CRUD выпусков: создать запланированный пустой выпуск
+POST {{baseUrl}}/issues
+Content-Type: application/json
+
+{
+  "issueDate": "2031-01-20",
+  "articleIds": []
+}
+> {% client.global.set("issueId", response.body.id); %}
+
+### CRUD выпусков: список и запись
+GET {{baseUrl}}/issues
+
+###
+GET {{baseUrl}}/issues/{{issueId}}
+
+### CRUD выпусков: PUT и PATCH допустимы, пока выпуск запланирован
+PUT {{baseUrl}}/issues/{{issueId}}
+Content-Type: application/json
+
+{
+  "issueDate": "2031-01-21",
+  "articleIds": []
+}
+
+###
+PATCH {{baseUrl}}/issues/{{issueId}}
+Content-Type: application/json
+
+{
+  "issueDate": "2031-01-22"
+}
+
+### Бизнес-операция 3: включить одобренную статью в выпуск
+POST {{baseUrl}}/business/issues/{{issueId}}/articles/{{articleId}}
+
+### Бизнес-операция 4: опубликовать выпуск и связанную статью
+POST {{baseUrl}}/business/issues/{{issueId}}/publish
+
+### CRUD выпусков: создать и удалить независимый выпуск
+POST {{baseUrl}}/issues
+Content-Type: application/json
+
+{
+  "issueDate": "2031-02-20",
+  "articleIds": []
+}
+> {% client.global.set("deletableIssueId", response.body.id); %}
+
+###
+DELETE {{baseUrl}}/issues/{{deletableIssueId}}
+
+### Бизнес-операция 5: создать отдельный запланированный выпуск и отменить его
+POST {{baseUrl}}/issues
+Content-Type: application/json
+
+{
+  "issueDate": "2031-03-20",
+  "articleIds": []
+}
+> {% client.global.set("cancelIssueId", response.body.id); %}
+
+###
+POST {{baseUrl}}/business/issues/{{cancelIssueId}}/cancel

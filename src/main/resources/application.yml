@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: editorial-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/editorial_lab}
+    username: ${SPRING_DATASOURCE_USERNAME:editorial_app}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  sql:
+    init:
+      mode: never
+
+server:
+  port: ${SERVER_PORT:8080}
+
+application:
+  description: REST API редакции новостного издания
+  version: 3.0.0
