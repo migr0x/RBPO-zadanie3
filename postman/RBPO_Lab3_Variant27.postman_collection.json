@@ -1,0 +1,1100 @@
+{
+  "info": {
+    "_postman_id": "9bcb88a1-4fb4-4a7e-980a-7c9c51e8b127",
+    "name": "RBPO Lab 3 — Variant 27 — News Editorial",
+    "description": "CRUD для пяти сущностей и пять бизнес-операций редакции. Запускайте запросы по порядку сверху вниз. Идентификаторы создаваемых записей сохраняются в переменные коллекции.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "sectionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deleteSectionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deleteUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "articleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "revisionArticleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deleteArticleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "issueId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deleteIssueId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — CRUD: рубрики и пользователи",
+      "description": "Создаются основные записи и отдельные временные записи для демонстрации DELETE.",
+      "item": [
+        {
+          "name": "01 Создать основную рубрику",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/editorial-sections",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Технологии API\",\n  \"publicationAvailable\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Рубрика создана', () => pm.response.to.have.status(201)); pm.collectionVariables.set('sectionId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Создать временную рубрику для DELETE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/editorial-sections",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Временная рубрика API\",\n  \"publicationAvailable\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Временная рубрика создана', () => pm.response.to.have.status(201)); pm.collectionVariables.set('deleteSectionId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 GET список рубрик",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-sections",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 GET основная рубрика",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-sections/{{sectionId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 PATCH основную рубрику",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/editorial-sections/{{sectionId}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Технологии и наука API\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Рубрика обновлена', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().name).to.eql('Технологии и наука API');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 DELETE временную рубрику",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-sections/{{deleteSectionId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Рубрика удалена', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Создать основного пользователя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_reporter\",\n  \"displayName\": \"Корреспондент Postman\",\n  \"email\": \"postman_reporter@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Пользователь создан', () => pm.response.to.have.status(201)); pm.collectionVariables.set('userId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Создать временного пользователя для DELETE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_temp_user\",\n  \"displayName\": \"Временный пользователь\",\n  \"email\": \"postman_temp@example.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Временный пользователь создан', () => pm.response.to.have.status(201)); pm.collectionVariables.set('deleteUserId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 GET список пользователей",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 GET основного пользователя",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 PATCH основного пользователя",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users/{{userId}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayName\": \"Корреспондент Postman обновлён\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Пользователь обновлён', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().displayName).to.eql('Корреспондент Postman обновлён');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 DELETE временного пользователя",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/{{deleteUserId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Пользователь удалён', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 — CRUD: статьи, проверки и выпуски",
+      "description": "Полный цикл GET list, GET by ID, POST, PATCH и DELETE по соответствующим ресурсам.",
+      "item": [
+        {
+          "name": "01 Создать статью для основного сценария",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/articles",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": {{sectionId}},\n  \"authorId\": {{userId}},\n  \"title\": \"Материал для публикации\",\n  \"text\": \"Тестовый материал для воспроизведения полного редакционного процесса.\",\n  \"status\": \"DRAFT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья создана', () => pm.response.to.have.status(201)); pm.collectionVariables.set('articleId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Создать статью для возврата на доработку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/articles",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": {{sectionId}},\n  \"authorId\": {{userId}},\n  \"title\": \"Материал для доработки\",\n  \"text\": \"Второй тестовый материал для проверки возврата автору.\",\n  \"status\": \"DRAFT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья для доработки создана', () => pm.response.to.have.status(201)); pm.collectionVariables.set('revisionArticleId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Создать временную статью для DELETE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/articles",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionId\": {{sectionId}},\n  \"authorId\": {{userId}},\n  \"title\": \"Временная статья\",\n  \"text\": \"Статья будет удалена в CRUD-сценарии коллекции.\",\n  \"status\": \"DRAFT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Временная статья создана', () => pm.response.to.have.status(201)); pm.collectionVariables.set('deleteArticleId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 GET список статей",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/articles",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 GET основную статью",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/articles/{{articleId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 PATCH основную статью",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/articles/{{articleId}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Материал для публикации — обновлён\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья обновлена', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().title).to.include('обновлён');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 DELETE временную статью",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/articles/{{deleteArticleId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья удалена', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Создать CRUD-проверку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/editorial-reviews",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"articleId\": {{articleId}},\n  \"decision\": \"NEEDS_REVISION\",\n  \"remarks\": \"Проверка CRUD-маршрутов; запись будет удалена до бизнес-сценария.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Проверка создана', () => pm.response.to.have.status(201)); pm.collectionVariables.set('reviewId', pm.response.json().id); pm.expect(pm.response.json().reviewedAt).to.exist;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 GET список редакторских проверок",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-reviews",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 GET CRUD-проверку",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-reviews/{{reviewId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 PATCH CRUD-проверку",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/editorial-reviews/{{reviewId}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remarks\": \"CRUD-запись обновлена\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Проверка обновлена', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().remarks).to.eql('CRUD-запись обновлена');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 DELETE CRUD-проверку",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-reviews/{{reviewId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Проверка удалена', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 Создать черновой выпуск для бизнес-сценария",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/edition-issues",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-11-10\",\n  \"articleIds\": [],\n  \"status\": \"DRAFT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Выпуск создан', () => pm.response.to.have.status(201)); pm.collectionVariables.set('issueId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 GET список выпусков",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/edition-issues",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 GET основной выпуск",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/edition-issues/{{issueId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP status is successful', function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 PATCH дату основного выпуска",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/edition-issues/{{issueId}}",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-11-11\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Выпуск обновлён', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().date).to.eql('2026-11-11');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17 Создать временный выпуск для DELETE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/edition-issues",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-11-12\",\n  \"articleIds\": [],\n  \"status\": \"DRAFT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Временный выпуск создан', () => pm.response.to.have.status(201)); pm.collectionVariables.set('deleteIssueId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18 DELETE временный выпуск",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/edition-issues/{{deleteIssueId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Выпуск удалён', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 — Пять бизнес-операций",
+      "description": "Сценарий проходит от отправки статьи на проверку до публикации выпуска; вторая статья отдельно возвращается на доработку.",
+      "item": [
+        {
+          "name": "01 Отправить основную статью на проверку",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/business-operations/articles/{{articleId}}/submit-for-review",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья перешла в IN_REVIEW', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().status).to.eql('IN_REVIEW');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Одобрить основную статью",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/business-operations/articles/{{articleId}}/approve",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remarks\": \"Материал проверен. Одобрено для выпуска.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья одобрена, проверка создана', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().article.status).to.eql('APPROVED'); pm.expect(pm.response.json().review.decision).to.eql('APPROVED'); pm.collectionVariables.set('approvalReviewId', pm.response.json().review.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Отправить вторую статью на проверку",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/business-operations/articles/{{revisionArticleId}}/submit-for-review",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Вторая статья перешла в IN_REVIEW', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().status).to.eql('IN_REVIEW');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Вернуть вторую статью на доработку",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/api/business-operations/articles/{{revisionArticleId}}/request-revision",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remarks\": \"Добавить независимый источник и уточнить дату.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья возвращена в DRAFT', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().article.status).to.eql('DRAFT'); pm.expect(pm.response.json().review.decision).to.eql('NEEDS_REVISION'); pm.collectionVariables.set('revisionReviewId', pm.response.json().review.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Включить одобренную статью в выпуск",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/business-operations/issues/{{issueId}}/articles/{{articleId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья включена в выпуск', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().articleIds).to.include(Number(pm.collectionVariables.get('articleId')));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 Опубликовать выпуск",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/business-operations/issues/{{issueId}}/publish",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Выпуск опубликован', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().status).to.eql('PUBLISHED'); pm.expect(pm.response.json().articleIds.length).to.be.above(0);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Проверить опубликованную статью",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/articles/{{articleId}}",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статья имеет статус PUBLISHED', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().status).to.eql('PUBLISHED');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Проверить историю проверок",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/editorial-reviews",
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Сохранены бизнес-проверки', () => pm.response.to.have.status(200)); pm.expect(pm.response.json().length).to.be.at.least(2);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
